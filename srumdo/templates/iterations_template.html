@@ -16,7 +16,7 @@
 		</tr>
 		{% for task in story.tasks %}
 		<tr>
-			<td>{{ task.summary }}<hr>{{ task.tags }}</td>
+			<td>{{ task.summary }}<hr><div class="devs">{{ task.names }}</div></td>
 		</tr>
 		{% endfor %} 
 	</table>
