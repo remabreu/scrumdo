@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="story_card.css"/>
+<head>
+<title>Iterations</title>
+</head>
+<body>
+	{% for iteration in iteration_list %}
+	{% for story in iteration.stories %}
+	<table width=60% align="center">
+		<tr>
+			<th>{{ iteration.name }} - {{ story.summary }}</th>
+			<th class='point'>{{ story.points }}</th>
+		</tr>
+		{% for task in story.tasks %}
+		<tr>
+			<td>{{ task.summary }}<hr>{{ task.tags }}</td>
+		</tr>
+		{% endfor %} 
+	</table>
+	<br><br><br>
+	{% endfor %}
+	{% endfor %}
+
+
+	<!--{#%- for item in item_list %}
+     {{ item }}{% if not loop.last %},{% endif %}
+   {%- endfor %} 
+   
+   {% for story in iteration.stories %}  
+    <td> {{ loop.length }} </td>
+  </tr>
+  <tr>
+    <td>{{ story.summary }}</td>
+    <td>{{ story.points }}</td>
+  </tr>
+  {%- endfor %}
+   -->
+
+	{% if not loop.last %}
+	<br> {% endif %#}
+</body>
+
+</html>
