@@ -1,5 +1,5 @@
-scrumdo_username="rabreu"
-scrumdo_password="reminha"
+#scrumdo_username="rabreu"
+#scrumdo_password="reminha"
 scrumdo_host="https://www.scrumdo.com"
 
 organization="Globo.com"

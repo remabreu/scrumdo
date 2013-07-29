@@ -7,13 +7,32 @@ Created on Jul 15, 2013
 import local_settings as settings
 import slumber, pprint, re
 from datetime import datetime 
+import argparse, getpass
+
+
+class CommandLine:
+    
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('user', help='ScrumDo user name')
+        parser.add_argument('-q', help='Qs in which the queries will be performed.'\
+                            'Ex: q1, q1-q3. Queries all executed on top of current year')
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('-c', '--cards', help='Save the Story cards in a html file', action='store_true')
+        group.add_argument('-s', '--csv', help="generates a CSV file", action='store_true')
+        parser.add_argument('-f', '--file', help="File to save the result. Either html or csv.")
+        args = parser.parse_args()
+        
+        
+        ScrumDo(args.user, getpass.getpass())
+        
+        
 
 class ScrumDo:
     
-    def __init__(self):
+    def __init__(self, user, pwd):
         base_url = "%s/api/v2/" % settings.scrumdo_host
-        self.api = slumber.API(base_url, auth=(settings.scrumdo_username, 
-                                          settings.scrumdo_password))
+        self.api = slumber.API(base_url, auth=(user,pwd))
         self.organization = self.api.organizations.get()[0]
         self.project = self.api.organizations(self.organization["slug"]).projects.get()[0]
         self.q_iteration_list = self.getQIterationsToDate("Q3")
@@ -105,5 +124,6 @@ class ScrumDo:
                     
  
 if __name__ == '__main__':
-    ScrumDo().main()
+#     ScrumDo().main()
+    CommandLine()
     
