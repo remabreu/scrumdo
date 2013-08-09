@@ -9,20 +9,26 @@
 <body>
 	{% for iteration in iteration_list %}
 	{% for story in iteration.stories %}
-	<table width=60% align="center">
+	<table width=80% align="center" {% if 'Blocked' in story.tags %}class"blocked"{% endif %}>
 		<tr>
-			<th>{{ iteration.name }} - {{ story.summary }}</th>
+		    {% set col_span = story.tasks|length // 4 %}
+		    {% if (story.tasks|length % 4) > 0 %}
+		      {% set col_span = col_span + 1 %}
+		    {% endif %}
+			<th colspan={{ col_span }}>{{ iteration.name }} - {{ story.summary }}</th>
 			<th class='point'>{{ story.points }}</th>
 		</tr>
-		{% for task in story.tasks %}
+		{%- for column in story.tasks|slice(4) -%}
 		<tr>
-			<td>{{ task.summary }}<hr><div class="devs">{{ task.names }}</div></td>
+		    {%- for task in column -%}
+			<td {% if task.unplanned %} class="unplanned" {% endif %}>{{ task.summary }}<hr><div class="devs">{{ task.names }}</div></td>
+			{%- endfor -%}
 		</tr>
-		{% endfor %} 
+		{%- endfor -%} 
 	</table>
 	<br><br><br>
-	{% endfor %}
-	{% endfor %}
+	{%- endfor -%}
+	{%- endfor -%}
 
 
 	<!--{#%- for item in item_list %}
