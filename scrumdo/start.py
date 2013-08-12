@@ -1,6 +1,6 @@
 import argparse, getpass
-from .scrumdo import ScrumDo
-from .parser import HtmlParser, CsvParser
+from scrumdo import ScrumDo
+from parser import HtmlParser, CsvParser
 import local_settings as settings
 
 class CommandLine(object):
@@ -22,13 +22,9 @@ class CommandLine(object):
         scrumDo = ScrumDo(args.user, getpass.getpass(), iters)
         iterations_stories_tasks = scrumDo.get_stories_tasks_iteration()
         if args.stories:
-            HtmlParser().execute(iterations_stories_tasks)
+            HtmlParser(iterations_stories_tasks).execute()
         elif args.csv:
-            proj_categories = scrumDo.get_categories_list()
-            CsvParser().execute(iterations_stories_tasks, proj_categories)
-#             CsvParser().categories(iterations_stories_tasks, proj_categories)
-#             CsvParser().tags(iterations_stories_tasks)
-#             CsvParser().epics()
+            CsvParser(iterations_stories_tasks).execute(scrumDo.project)
     
     def get_iteration_list(self, q):
         q_args = q.split('-')
@@ -40,3 +36,6 @@ class CommandLine(object):
             return settings.q_iterations[i1:i2]
         else:
             raise Exception("Invalid Arguments for Q range")
+        
+if __name__ == '__main__':
+    CommandLine()

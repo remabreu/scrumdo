@@ -13,6 +13,7 @@ class ScrumDo:
         self.organization = self.api.organizations.get()[0]
         self.project = self.api.organizations(self.organization["slug"]).projects.get()[0]
         self.q_iteration_list = self.get_q_iterations_to_date(iters)
+        self.categories_as_list()
         
     def pprint_iteration(self):
         pp = pprint.PrettyPrinter(indent=4)
@@ -46,7 +47,18 @@ class ScrumDo:
         epic = self.api.organizations(self.organization["slug"]).\
                 projects(self.project['slug']).epics(epic_id).get()
         story["epic"]['summary'] = epic['summary']
+        if "epic_list" not in self.project.keys(): 
+            self.project["epic_list"] = [epic['summary']]
+        elif epic['summary'] not in self.project["epic_list"]:
+            self.project["epic_list"].append(epic['summary'])
 
+    def add_tags_header(self, story):
+        if story["tags"]:
+            if "tags_list" in self.project.keys():
+                self.project["tags_list"] = self.project["tags_list"] | set(story["tags_list"])
+            else:
+                self.project["tags_list"] = set(story["tags_list"])
+                    
     def add_task(self, iteration, story):
         tasks = self.api.organizations(self.organization["slug"]).\
                 projects(self.project['slug']).iterations(iteration['id']).\
@@ -54,9 +66,9 @@ class ScrumDo:
         self.fix_task_tags(tasks)
         story["tasks"] = tasks
 
-
+    
     def add_comment_as_dict(self, story):
-        comment_list = self.api.comments.stories(story["id"]).get()
+        comment_list = self.api.comments().story(story["id"]).get()
         if comment_list:
             for comment in comment_list:
                 if comment["comment"].startswith("cycle"):
@@ -71,15 +83,18 @@ class ScrumDo:
             iteration["stories"] = stories
             for story in stories:
                 self.add_task(iteration, story)
+                if "epic" not in story.keys():
+                    print story["summary"]
                 self.add_epic(story['epic']['id'], story)
                 if story["comment_count"] > 0:
                     self.add_comment_as_dict(story)
+                self.add_tags_header(story)
                     
         return self.q_iteration_list
     
-    def get_categories_list(self):
-        categories = self.project['categories']
-        return sorted([cat for cat in categories.split(', ')])
+    def categories_as_list(self):
+        categories_list = self.project['categories']
+        self.project["categories_list"] = sorted([cat for cat in categories_list.split(', ')])
         
     def get_q_iterations_to_date(self, iters):
         today = datetime.today()
@@ -97,5 +112,5 @@ class ScrumDo:
         return sprints
  
 if __name__ == '__main__':
-    CommandLine()
+    pass
     
