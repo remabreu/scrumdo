@@ -47,18 +47,19 @@ class ScrumDo:
         epic = self.api.organizations(self.organization["slug"]).\
                 projects(self.project['slug']).epics(epic_id).get()
         story["epic"]['summary'] = epic['summary']
-        if "epic_list" not in self.project.keys(): 
-            self.project["epic_list"] = [epic['summary']]
-        elif epic['summary'] not in self.project["epic_list"]:
-            self.project["epic_list"].append(epic['summary'])
+        story["epic_summary"] = epic['summary']
+        if "epics_list" not in self.project.keys(): 
+            self.project["epics_list"] = [epic['summary']]
+        elif epic['summary'] not in self.project["epics_list"]:
+            self.project["epics_list"].append(epic['summary'])
 
     def add_tags_header(self, story):
         if story["tags"]:
             if "tags_list" in self.project.keys():
-                self.project["tags_list"] = self.project["tags_list"] | set(story["tags_list"])
+                self.project["tags_list"] = set(self.project["tags_list"]) | set(story["tags_list"])
             else:
                 self.project["tags_list"] = set(story["tags_list"])
-                    
+                                    
     def add_task(self, iteration, story):
         tasks = self.api.organizations(self.organization["slug"]).\
                 projects(self.project['slug']).iterations(iteration['id']).\
@@ -68,13 +69,14 @@ class ScrumDo:
 
     
     def add_comment_as_dict(self, story):
-        comment_list = self.api.comments().story(story["id"]).get()
-        if comment_list:
-            for comment in comment_list:
-                if comment["comment"].startswith("cycle"):
-                    story["cycle"] = eval(comment["comment"].split(": ")[1])
-                if comment["comment"].startswith("responsive"):
-                    story["responsive"] = eval(comment["comment"].split(": ")[1])
+        pass
+#         comment_list = self.api.comments().story(story["id"]).get()
+#         if comment_list:
+#             for comment in comment_list:
+#                 if comment["comment"].startswith("cycle"):
+#                     story["cycle"] = eval(comment["comment"].split(": ")[1])
+#                 if comment["comment"].startswith("responsive"):
+#                     story["responsive"] = eval(comment["comment"].split(": ")[1])
     
     def get_stories_tasks_iteration(self):
         for iteration in self.q_iteration_list:
@@ -83,13 +85,13 @@ class ScrumDo:
             iteration["stories"] = stories
             for story in stories:
                 self.add_task(iteration, story)
-                if "epic" not in story.keys():
-                    print story["summary"]
                 self.add_epic(story['epic']['id'], story)
                 if story["comment_count"] > 0:
                     self.add_comment_as_dict(story)
                 self.add_tags_header(story)
-                    
+                
+        self.project["epics_list"] = sorted(self.project["epics_list"])  
+        self.project["tags_list"] = sorted(self.project["tags_list"], key=lambda s: s.lower())         
         return self.q_iteration_list
     
     def categories_as_list(self):
